@@ -14,5 +14,5 @@ BEGIN
 			c.density,
 			get_tranche(c.density) as tranche
 		FROM
-			countries c;
+			country c;
 END;$$;

@@ -1,9 +1,9 @@
 drop function get_country;
-CREATE FUNCTION get_country(country_name varchar) RETURNS SETOF countries AS
+CREATE FUNCTION get_country(country_name varchar) RETURNS SETOF country AS
 $BODY$
 BEGIN
     RETURN QUERY SELECT *
-                  FROM countries
+                  FROM country
                   WHERE lower(country) like lower(country_name);
 
     -- Since execution is not finished, we can check whether rows were returned
@@ -16,5 +16,3 @@ BEGIN
  END
 $BODY$
 LANGUAGE plpgsql;
-
-select * from get_country('Nigeria');

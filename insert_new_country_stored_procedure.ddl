@@ -13,7 +13,7 @@ create procedure insert_new_country(name_country varchar)
 		urban_pop int := (SELECT floor(random() * 70 + 30)::int);
 		world_share NUMERIC(10,2) := (SELECT (random() * 2 + 0)::NUMERIC(10,2));
 	begin
-		INSERT INTO countries(country,
+		INSERT INTO country(country,
 							  population,
 							  yearly_change,
 							  net_change,

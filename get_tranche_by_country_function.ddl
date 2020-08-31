@@ -12,7 +12,7 @@ BEGIN
 			c.country,
 			c.density,
 			get_tranche(c.density) as tranche
-		FROM countries c
-		WHERE c.country like country_param;
+		FROM country c
+		WHERE lower(c.country) like lower(country_param);
 		
 END;$$;
