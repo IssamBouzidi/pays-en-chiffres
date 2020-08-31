@@ -1,2 +1,2 @@
 # pays-en-chiffres
-Récoler des informations basiques sur les pays et vous allez manipuler les données
+Récolter des informations basiques sur les pays et manipuler les données
