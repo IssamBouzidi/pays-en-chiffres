@@ -3,7 +3,7 @@
 Manipulations des données sur les pays avec **PL/pgSQL**(Procedures stockées, fonctions, triggers)
 
 ## Pré-requis
-Base de données PostgreSQL
+Base de données PostgreSQL  
 Vous pouvez creer une base donner SaaS sur [ElephantSQL](elephantsql.com)  
 Pour exploiter la base de données, vous pouvez utiliser [PgAdmin](https://www.pgadmin.org/download/)  
 
@@ -47,3 +47,23 @@ Ci-dessous vous trouverez les scripts à executer pour exploiter la base de donn
       *2.4.2. Fonction qui retourne la liste des pays avec tranche de densité de population*  
       Cette fonction retourne la liste des pays avec les tranches à laquelle appartient chaque pays  
       `SELECT * FROM get_tranches_all()`
+      
+      > Les deux fonctions ci-dessus font appel à une fontion qui prend en parametre la densité de population et un parametre de sortie (OUT) qui contient la tranche à laquelle appartien cette densité
+      ```SQL
+        create or replace function get_tranche(density_param int, out tranche varchar) 
+        language plpgsql
+        as $$
+        begin
+            tranche := (select CASE 
+                                    WHEN density_param <= 100 THEN 'Tranche 1'
+                                    WHEN density_param <= 1000 THEN 'Tranche 2'
+                                    WHEN density_param <= 10000 THEN 'Tranche 3'
+                                    ELSE 'Tranche 4'
+                                END);
+        end;
+        $$;
+      ```
+      
+ ## Help
+ Pour plus d'informations ou d'aide veuillez me contacter sur cette email <issam.bouzidi.01@gmail.com>
+ 
