@@ -15,7 +15,7 @@ Fichier DDL qui contient les requêtes SQL pour creer et alimenter la table
 
 ## Procedure à suivre afin de lancer les scripts
 1. **Alimentation de la base de données**  
-La premiere étape consiste à créer la table, à l'alimenter et à creer les foncitons, les procedures stockées et le trigger, pour cela, veuillez lancer le script [database_create.ddl](https://github.com/IssamBouzidi/pays-en-chiffres/blob/master/database_create.ddl)  
+La premiere étape consiste à créer la table, à l'alimenter et à creer les fonctions, les procedures stockées et le trigger, pour cela, veuillez lancer le script [database_create.ddl](https://github.com/IssamBouzidi/pays-en-chiffres/blob/master/database_create.ddl)  
 
 2. **Exploitations de la base de données**  
 Ci-dessous vous trouverez les scripts à executer pour exploiter la base de données  
