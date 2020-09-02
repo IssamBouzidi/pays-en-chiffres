@@ -11,11 +11,11 @@ Pour exploiter la base de données, vous pouvez utiliser [PgAdmin](https://www.p
 Fichier CSV de base qui contient les informations sur les pays à manipuler [population_by_country_2020.csv](https://simplonline-v3-prod.s3.eu-west-3.amazonaws.com/media/file/csv/25d9c746-3622-4c48-835e-d7ccafa311f5.csv)
 
 ## Livrables
-Fichier DDL qui contient les requêtes SQL pour creer et alimenter la table
+Fichier SQL qui contient les requêtes SQL pour creer et alimenter la table
 
 ## Procedure à suivre afin de lancer les scripts
 1. **Alimentation de la base de données**  
-La premiere étape consiste à créer la table, à l'alimenter et à creer les fonctions, les procedures stockées et le trigger, pour cela, veuillez lancer le script [database_create.ddl](https://github.com/IssamBouzidi/pays-en-chiffres/blob/master/database_create.ddl)  
+La premiere étape consiste à créer la table, à l'alimenter et à creer les fonctions, les procedures stockées et le trigger, pour cela, veuillez lancer le script [database_create.ddl](https://github.com/IssamBouzidi/pays-en-chiffres/blob/master/database_create.sql)  
 
 2. **Exploitations de la base de données**  
 Ci-dessous vous trouverez les scripts à executer pour exploiter la base de données  
