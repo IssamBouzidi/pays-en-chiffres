@@ -1,3 +1,26 @@
+-- Drop table if exists
+DROP TABLE IF EXISTS country;
+
+-- Create table country 
+CREATE TABLE country(
+	id_country    SERIAL PRIMARY KEY,
+	country       VARCHAR(50),
+	population    INTEGER,
+	yearly_change NUMERIC(10,2),
+	net_change    INTEGER,
+	density       INTEGER,
+	land_area     INTEGER,
+	migrants      NUMERIC(10,2),
+	fert_rate     NUMERIC(10,2),
+	med_age       INTEGER,
+	urban_pop     INTEGER,
+	world_share   NUMERIC(10,2)
+);
+
+-- Alter table add column date_insertion
+ALTER TABLE country
+ADD COLUMN date_insertion TIMESTAMP WITHOUT TIME ZONE;
+
 -- Insert data
 INSERT INTO country(country,population,yearly_change,net_change,density,land_area,migrants,fert_rate,med_age,urban_pop,world_share) VALUES ('China',1438207241,0.39,5540090,153,9388211,-348399.0,1.7,38,61,18.47);
 INSERT INTO country(country,population,yearly_change,net_change,density,land_area,migrants,fert_rate,med_age,urban_pop,world_share) VALUES ('India',1377233523,0.99,13586631,464,2973190,-532687.0,2.2,28,35,17.70);
@@ -234,3 +257,137 @@ INSERT INTO country(country,population,yearly_change,net_change,density,land_are
 INSERT INTO country(country,population,yearly_change,net_change,density,land_area,migrants,fert_rate,med_age,urban_pop,world_share) VALUES ('Niue',1624,0.68,11,6,260,NULL,NULL,NULL,46,0.00);
 INSERT INTO country(country,population,yearly_change,net_change,density,land_area,migrants,fert_rate,med_age,urban_pop,world_share) VALUES ('Tokelau',1354,1.27,17,136,10,NULL,NULL,NULL,0,0.00);
 INSERT INTO country(country,population,yearly_change,net_change,density,land_area,migrants,fert_rate,med_age,urban_pop,world_share) VALUES ('Holy See',801,0.25,2,2003,0,NULL,NULL,NULL,NULL,0.00);
+
+-- Return country informations
+DROP FUNCTION IF EXISTS get_country;
+CREATE FUNCTION get_country(country_name varchar) RETURNS SETOF country AS
+$BODY$
+BEGIN
+    RETURN QUERY SELECT *
+                  FROM country
+                  WHERE lower(country) like lower(country_name);
+
+    -- Since execution is not finished, we can check whether rows were returned
+    -- and raise exception if not.
+    IF NOT FOUND THEN
+        RAISE EXCEPTION 'No country found %.', $1;
+    END IF;
+
+    RETURN;
+ END
+$BODY$
+LANGUAGE plpgsql;
+
+-- Stored procedure to insert new country
+DROP PROCEDURE if exists insert_new_country(name_country varchar);
+CREATE OR REPLACE PROCEDURE insert_new_country(name_country varchar)
+language plpgsql
+as $$
+	declare
+		population int := (SELECT floor(random() * 10000000 + 20000000)::int);
+		yearly_change NUMERIC(10,2) := (SELECT (random() * 3 + -1)::NUMERIC(10,2));
+		net_change int := (SELECT floor(random() * 15000000 + -500000)::int);
+		density int := (SELECT floor(random() * 320 + 20)::int);
+		land_area int := (SELECT floor(random() * 20000000 + 200000)::int);
+		migrants int := (SELECT floor(random() * 10000 + -5000)::int);
+		fert_rate NUMERIC(10,2) := (SELECT (random() * 5 + 1)::NUMERIC(10,1));
+		med_age int := (SELECT floor(random() * 10 + 25)::int);
+		urban_pop int := (SELECT floor(random() * 70 + 30)::int);
+		world_share NUMERIC(10,2) := (SELECT (random() * 2 + 0)::NUMERIC(10,2));
+	begin
+		INSERT INTO country(country,
+							  population,
+							  yearly_change,
+							  net_change,
+							  density,
+							  land_area,
+							  migrants,
+							  fert_rate,
+							  med_age,
+							  urban_pop,
+							  world_share
+							 ) 
+		VALUES (name_country,
+				population,
+				yearly_change,
+				net_change,
+				density,
+				land_area,
+				migrants,
+				fert_rate,
+				med_age,
+				urban_pop,
+				world_share
+			   );
+	end; $$;
+	
+-- update date_insertion trigger
+CREATE OR REPLACE FUNCTION update_date_insertion() RETURNS trigger AS
+$BODY$
+BEGIN
+	UPDATE country
+	SET date_insertion = (SELECT NOW()::timestamp(0) AT TIME ZONE 'Etc/GMT+2')
+	WHERE id_country = NEW.id_country;
+    RETURN new; 
+END;
+$BODY$
+ LANGUAGE plpgsql VOLATILE;
+ 
+CREATE TRIGGER update_date_insertion_trigger
+	AFTER INSERT
+	ON country
+	FOR EACH ROW
+	EXECUTE PROCEDURE update_date_insertion();
+	
+-- Function to return "Tranche"
+create or replace function get_tranche(density_param int, out tranche varchar) 
+language plpgsql
+as $$
+begin
+	tranche := (select CASE 
+							WHEN density_param <= 100 THEN 'Tranche 1'
+							WHEN density_param <= 1000 THEN 'Tranche 2'
+							WHEN density_param <= 10000 THEN 'Tranche 3'
+							ELSE 'Tranche 4'
+						END);
+end;
+$$;
+
+-- function that returns coutries with density and slice(tranche)
+CREATE OR REPLACE FUNCTION get_tranches_all () 
+	RETURNS TABLE (
+		country varchar,
+		density int,
+		tranche varchar
+	) 
+	LANGUAGE plpgsql
+AS $$
+BEGIN
+	RETURN QUERY 
+		SELECT
+			c.country,
+			c.density,
+			get_tranche(c.density) as tranche
+		FROM
+			country c;
+END;$$;
+
+-- Function that returns "tranche" of a country
+CREATE OR REPLACE FUNCTION get_tranche_by_country (country_param varchar) 
+	RETURNS TABLE (
+		country varchar,
+		density int,
+		tranche varchar
+	)
+	LANGUAGE plpgsql
+AS $$
+BEGIN
+	RETURN QUERY 
+		SELECT
+			c.country,
+			c.density,
+			get_tranche(c.density) as tranche
+		FROM country c
+		WHERE lower(c.country) like lower(country_param);
+		
+END;$$;
