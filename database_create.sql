@@ -1,8 +1,8 @@
 -- Drop table if exists
 DROP TABLE IF EXISTS country;
-
+	  
 -- Create table country 
-CREATE TABLE country(
+CREATE TABLE IF NOT EXISTS country(
 	id_country    SERIAL PRIMARY KEY,
 	country       VARCHAR(50),
 	population    INTEGER,
@@ -322,6 +322,7 @@ as $$
 	end; $$;
 	
 -- update date_insertion trigger
+DROP FUNCTION if exists update_date_insertion();
 CREATE OR REPLACE FUNCTION update_date_insertion() RETURNS trigger AS
 $BODY$
 BEGIN
@@ -332,7 +333,8 @@ BEGIN
 END;
 $BODY$
  LANGUAGE plpgsql VOLATILE;
- 
+
+DROP TRIGGER IF EXISTS update_date_insertion_trigger ON country;
 CREATE TRIGGER update_date_insertion_trigger
 	AFTER INSERT
 	ON country
@@ -340,6 +342,7 @@ CREATE TRIGGER update_date_insertion_trigger
 	EXECUTE PROCEDURE update_date_insertion();
 	
 -- Function to return "Tranche"
+DROP FUNCTION IF EXISTS get_tranche(density_param int, out tranche varchar);
 create or replace function get_tranche(density_param int, out tranche varchar) 
 language plpgsql
 as $$
@@ -354,6 +357,7 @@ end;
 $$;
 
 -- function that returns coutries with density and slice(tranche)
+DROP FUNCTION IF EXISTS get_tranches_all();
 CREATE OR REPLACE FUNCTION get_tranches_all () 
 	RETURNS TABLE (
 		country varchar,
@@ -373,6 +377,7 @@ BEGIN
 END;$$;
 
 -- Function that returns "tranche" of a country
+DROP FUNCTION IF EXISTS get_tranche_by_country(country_param varchar);
 CREATE OR REPLACE FUNCTION get_tranche_by_country (country_param varchar) 
 	RETURNS TABLE (
 		country varchar,
@@ -391,3 +396,5 @@ BEGIN
 		WHERE lower(c.country) like lower(country_param);
 		
 END;$$;
+
+
